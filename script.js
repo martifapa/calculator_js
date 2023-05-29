@@ -1,107 +1,67 @@
-// 
 let currentNumber = '';
-let pastNumber = '';
+let lastNumber = '';
 let currentOperation = '';
-let lastKeyCompute = false;
+
 
 // elements
-const zero = document.getElementById('0');
-const one = document.getElementById('1');
-const two = document.getElementById('2');
-const three = document.getElementById('3');
-const four = document.getElementById('4');
-const five = document.getElementById('5');
-const six = document.getElementById('6');
-const seven = document.getElementById('7');
-const eight = document.getElementById('8');
-const nine = document.getElementById('9');
-
+const numberButtons = document.querySelectorAll('[data-number]')
+const operationButtons = document.querySelectorAll('[data-operation]')
 const comma = document.getElementById('.');
-
-const add = document.getElementById('add');
-const subtract = document.getElementById('subtract');
-const multiply = document.getElementById('multiply');
-const divide = document.getElementById('divide');
-
-const enter = document.getElementById('enter');
+const enter = document.getElementById('evaluate');
 const backspace = document.getElementById('backspace');
-
+const clear = document.getElementById('clear');
 const currentValueLabel = document.getElementById('current-value');
 
+
 // calculation functions
-const sumValues = () => parseFloat(pastNumber) + parseFloat(currentNumber);
+const add = () => parseFloat(lastNumber) + parseFloat(currentNumber);
+const substract = () => parseFloat(lastNumber) - parseFloat(currentNumber);
+const multiply = () => parseFloat(lastNumber) * parseFloat(currentNumber);
+const divide = () => parseFloat(lastNumber) / parseFloat(currentNumber);
 
-const subtractValues = () => parseFloat(pastNumber) - parseFloat(currentNumber);
 
-const multiplyValues = () => parseFloat(pastNumber) * parseFloat(currentNumber);
-
-const divideValues = () => parseFloat(pastNumber) / parseFloat(currentNumber);
-
-// input functions
-const listenKey = e => {
-    if (lastKeyCompute && e.target.id.length === 1) {
-        currentNumber = e.target.id;
-        pastNumber = '';
-    } else {
-        lastKeyCompute = false;
-        e.target.id.length === 1 ? currentNumber += e.target.id : listenNewKey(e.target.id);
+const evaluate = () => {
+    if (currentOperation === '+') {
+        currentNumber = add();
+    } else if (currentOperation === '-') {
+        currentNumber = substract();
+    } else if (currentOperation === '*') {
+        currentNumber = multiply();
+    } else if (currentOperation === '/') {
+        currentNumber = divide();
     }
-    updateCurrentValueLabel();
+    updateCalculator();
 }
-const listenNewKey = passedOperation => {
-    if (passedOperation === 'enter') {
-        currentNumber = calculate();
-        lastKeyCompute = true;
-        console.log(currentNumber);
-        return
-    } else if (passedOperation === 'backspace') {
-        if (!lastKeyCompute) {
-            currentNumber = currentNumber.slice(0, -1);
-        }
-    } else {
-        pastNumber = currentNumber;
+
+const listenNumberKey = (num) => {
+    currentNumber += num;
+}
+const listenOperationKey = (operator) => {
+    if (currentNumber) {
+        lastNumber = currentNumber;
         currentNumber = '';
-        currentOperation = passedOperation;
+        currentOperation = operator;
     }
 }
-
-const calculate = () => {
-    if (currentOperation === 'add') {
-        return sumValues();
-    } else if (currentOperation === 'subtract') {
-        return subtractValues();
-    } else if (currentOperation === 'multiply') {
-        return multiplyValues();
-    } else if (currentOperation === 'divide') {
-        return divideValues();
-    } else {
-        return pastNumber;
-    }
+const listenBackspace = () => {
+    currentNumber = currentNumber.slice(0, -1);
+    updateCalculator();
+}
+const clearAll = () => {
+    currentNumber = '';
+    currentOperation = '';
+    lastNumber = '';
+    updateCalculator();
 }
 
-// UI functions
-const updateCurrentValueLabel = () => {
-    if (lastKeyCompute) {
-        currentValueLabel.textContent = currentNumber;
-    } else if (pastNumber && currentNumber) {
-        currentValueLabel.textContent = pastNumber + currentOperation + currentNumber;
-    } else if (pastNumber && !currentNumber) {
-        currentValueLabel.textContent = pastNumber + currentOperation;
-    } else {
-        currentValueLabel.textContent = currentNumber;
-    }
+const updateCalculator = () => {
+    currentValueLabel.textContent = currentNumber;
 }
 
 // event listeners
-for (let i = 0; i < 10; i++) {
-    const btn = document.getElementById(i.toString());
-    btn.addEventListener('click', listenKey);
-}
-
-add.addEventListener('click', listenKey);
-subtract.addEventListener('click', listenKey);
-multiply.addEventListener('click', listenKey);
-divide.addEventListener('click', listenKey);
-enter.addEventListener('click', listenKey);
-comma.addEventListener('click', listenKey);
-backspace.addEventListener('click', listenKey);
+numberButtons.forEach((button) => button.addEventListener('click', () => listenNumberKey(button.textContent)));
+numberButtons.forEach((button) => button.addEventListener('click', updateCalculator));
+operationButtons.forEach((button) => button.addEventListener('click', () => listenOperationKey(button.textContent)));
+clear.addEventListener('click', clearAll);
+enter.addEventListener('click', evaluate);
+backspace.addEventListener('click', listenBackspace);
