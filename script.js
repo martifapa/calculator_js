@@ -21,6 +21,7 @@ const divide = () => parseFloat(lastNumber) / parseFloat(currentNumber);
 
 
 const evaluate = () => {
+    console.log(currentOperation)
     if (currentOperation === '+') {
         currentNumber = add();
     } else if (currentOperation === '-') {
@@ -31,6 +32,8 @@ const evaluate = () => {
         currentNumber = divide();
     }
     updateCalculator();
+    lastNumber = currentNumber;
+    currentNumber = '';
 }
 
 const listenNumberKey = (num) => {
@@ -40,11 +43,15 @@ const listenOperationKey = (operator) => {
     if (currentNumber) {
         lastNumber = currentNumber;
         currentNumber = '';
-        currentOperation = operator;
     }
+    currentOperation = operator;
 }
 const listenBackspace = () => {
     currentNumber = currentNumber.slice(0, -1);
+    updateCalculator();
+}
+const listenComma = () => {
+    currentNumber += '.';
     updateCalculator();
 }
 const clearAll = () => {
@@ -55,7 +62,7 @@ const clearAll = () => {
 }
 
 const updateCalculator = () => {
-    currentValueLabel.textContent = currentNumber;
+    currentValueLabel.textContent = Math.round(currentNumber * 1000) / 1000;
 }
 
 // event listeners
@@ -65,3 +72,4 @@ operationButtons.forEach((button) => button.addEventListener('click', () => list
 clear.addEventListener('click', clearAll);
 enter.addEventListener('click', evaluate);
 backspace.addEventListener('click', listenBackspace);
+comma.addEventListener('click', listenComma);
